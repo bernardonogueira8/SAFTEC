@@ -14,4 +14,5 @@ class Manufacturer extends Model
         'company_name',
         'cnpj',
     ];
+    
 }

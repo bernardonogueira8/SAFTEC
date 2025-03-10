@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Models\Analysis;
 use App\Models\StabilityConsultation;
 
 class StabilityConsultationObserver
@@ -11,7 +12,12 @@ class StabilityConsultationObserver
      */
     public function created(StabilityConsultation $stabilityConsultation): void
     {
-        //
+        // Criar o registro em Analysis com os dados necessários
+        Analysis::create([
+            'analysis_id' => $stabilityConsultation->id, // Exemplo de vínculo
+            'role' => 'aberto', // Status inicial
+            'medications' => $stabilityConsultation->medications, // Copiar o campo medications
+        ]);
     }
 
     /**

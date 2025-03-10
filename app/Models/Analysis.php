@@ -44,4 +44,9 @@ class Analysis extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+    // Defina a relação com StabilityConsultation, se necessário
+    public function stabilityConsultation()
+    {
+        return $this->belongsTo(StabilityConsultation::class, 'analysis_id');
+    }
 }

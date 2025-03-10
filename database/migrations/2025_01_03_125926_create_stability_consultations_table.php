@@ -18,7 +18,7 @@ return new class extends Migration
 
             // Informações da Instituição
             $table->string('institution_name')->comment('Nome da instituição responsável');
-            $table->string('cnpj', 18)->comment('CNPJ da instituição, formatado como XX.XXX.XXX/XXXX-XX');
+            $table->string('cnpj', 18)->nullable()->comment('CNPJ da instituição, formatado como XX.XXX.XXX/XXXX-XX');
 
             // Informações de verificação e excursão de temperatura
             $table->timestamp('last_verification_at')->nullable()->comment('Última verificação antes da excursão de temperatura');

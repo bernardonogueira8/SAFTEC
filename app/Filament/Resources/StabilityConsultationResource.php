@@ -116,7 +116,7 @@ class StabilityConsultationResource extends Resource
                             Forms\Components\Select::make('institution_name')
                                 ->label('Nome da unidade:')
                                 ->helperText('Estabelecimento onde ocorreu excursão')
-                                ->options(Estabelecimento::all()->pluck('nome', 'id'))
+                                ->options(Estabelecimento::all()->pluck('name', 'id'))
                                 ->required()
                                 ->searchable(),
                             Document::make('cnpj')
@@ -166,6 +166,7 @@ class StabilityConsultationResource extends Resource
                                         $set('estimated_exposure_time', $difference);
                                     }
                                 }),
+
                             Forms\Components\TextInput::make('estimated_exposure_time')
                                 ->label('Tempo Estimado de Exposição')
                                 ->helperText('Tempo de exposição estimada à temperatura não recomendada em horas.')
@@ -218,27 +219,38 @@ class StabilityConsultationResource extends Resource
 
                             Repeater::make('medications')
                                 ->label('Medicamentos')
-                                ->collapsible()
-                                ->itemLabel(fn(array $state): ?string => $state['medicament_name'] ?? null)
                                 ->schema([
-                                    TextInput::make('medicament_name')
+                                    Select::make('medicament_id')
                                         ->label('Nome do Medicamento')
-                                        ->columnSpan(3)
-                                        ->required(),
+                                        ->placeholder('Selecione um medicamento')
+                                        ->relationship('medicaments', 'name', fn($query) => $query->orderBy('name')) // Ordenação alfabética
+                                        ->searchable()
+                                        ->preload()
+                                        ->required()
+                                        ->columnSpan(2),
 
                                     Select::make('medicament_unit')
                                         ->label('Apresentação')
                                         ->options([
-                                            'AMPOLA' => 'AMPOLA',
-                                            'CÁPSULA' => 'CÁPSULA',
-                                            'COMPRIMIDO' => 'COMPRIMIDO',
+                                            'AMPOLA' => 'Ampola',
+                                            'CÁPSULA' => 'Cápsula',
+                                            'COMPRIMIDO' => 'Comprimido',
                                         ])
+                                        ->required()
+                                        ->columnSpan(1),
+                                    TextInput::make('medicament_lote')
+                                        ->label('Lote')
+                                        ->placeholder('Informe o lote')
                                         ->required(),
 
-                                    TextInput::make('medicament_manufacturer')
+                                    Select::make('manufacturer_id')
                                         ->label('Fabricante')
-                                        ->columnSpan(2)
-                                        ->required(),
+                                        ->placeholder('Selecione o fabricante')
+                                        ->relationship('manufacturer', 'name', fn($query) => $query->orderBy('name')) // Ordenação alfabética
+                                        ->searchable()
+                                        ->preload()
+                                        ->required()
+                                        ->columnSpan(2),
 
                                     DatePicker::make('medicament_date')
                                         ->label('Data de Validade')
@@ -247,42 +259,49 @@ class StabilityConsultationResource extends Resource
                                     TextInput::make('medicament_quantity')
                                         ->label('Quantidade')
                                         ->numeric()
+                                        ->live() // Atualiza o campo em tempo real
                                         ->required(),
 
                                     Select::make('program_category')
                                         ->label('Programa de Saúde')
                                         ->searchable()
                                         ->options([
-                                            'AÇÃO JUDICIAL' => 'AÇÃO JUDICIAL',
+                                            'AÇÃO JUDICIAL' => 'Ação Judicial',
                                             'CEAF 1A - MS' => 'CEAF 1A - MS',
                                             'CEAF 1B SESAB' => 'CEAF 1B SESAB',
-                                            'ENDEMIAS' => 'ENDEMIAS',
-                                            'MINISTÉRIO DA SAÚDE/JUDICIALIZAÇÃO' => 'MINISTÉRIO DA SAÚDE/JUDICIALIZAÇÃO',
-                                            'HEPATITES VIRAIS' => 'HEPATITES VIRAIS',
-                                            'HOSPITALAR' => 'HOSPITALAR',
-                                            'INSULINA DA ATENÇÃO BÁSICA' => 'INSULINA DA ATENÇÃO BÁSICA',
-                                            'ONCOLOGIA' => 'ONCOLOGIA',
-                                            'PROGRAMA DST/AIDS' => 'PROGRAMA DST/AIDS',
-                                            'PROTOCOLO ESTADUAL PALIVIZUMABE' => 'PROTOCOLO ESTADUAL PALIVIZUMABE',
-                                            'TUBERCULOSE' => 'TUBERCULOSE',
+                                            'ENDEMIAS' => 'Endemias',
+                                            'MINISTÉRIO DA SAÚDE/JUDICIALIZAÇÃO' => 'Ministério da Saúde/Judicialização',
+                                            'HEPATITES VIRAIS' => 'Hepatites Virais',
+                                            'HOSPITALAR' => 'Hospitalar',
+                                            'INSULINA DA ATENÇÃO BÁSICA' => 'Insulina da Atenção Básica',
+                                            'ONCOLOGIA' => 'Oncologia',
+                                            'PROGRAMA DST/AIDS' => 'Programa DST/AIDS',
+                                            'PROTOCOLO ESTADUAL PALIVIZUMABE' => 'Protocolo Estadual Palivizumabe',
+                                            'TUBERCULOSE' => 'Tuberculose',
                                         ])
-                                        ->columnSpan(2)
-                                        ->required(),
-
-                                    TextInput::make('medicament_lote')
-                                        ->label('Lote')
-                                        ->required(),
-
+                                        ->required()
+                                        ->columnSpan(2),
                                     TextInput::make('unit_value')
                                         ->label('Valor Unitário (R$)')
                                         ->numeric()
                                         ->step(0.01)
+                                        ->live() // Atualiza o campo em tempo real
                                         ->required(),
+                                    TextInput::make('total_value')
+                                        ->label('Total (R$)')
+                                        ->numeric()
+                                        ->step(0.01)
+                                        ->disabled()
+                                        ->live() // Atualiza automaticamente quando os valores mudam
+                                        ->afterStateHydrated(
+                                            fn($set, $get) =>
+                                            $set('total_value', ($get('medicament_quantity') ?: 0) * ($get('unit_value') ?: 0))
+                                        )
+                                        ->columnSpan(1),
                                 ])
-                                ->columns(4)
-                                ->nullable()
+                                ->columns(4) // Melhor distribuição dos campos
+                                ->collapsible() // Permite esconder os itens do repeater para melhor UX
                                 ->columnSpanFull(),
-
                         ])
                         ->columns(3),
 
@@ -394,7 +413,7 @@ class StabilityConsultationResource extends Resource
                             ->columnSpan(1)
                             ->copyable()
                             ->copyMessage('Copiado!'),
-                        TextEntry::make('institution_name')
+                        TextEntry::make('estabelecimento.name')
                             ->label('Nome da Instituição:')
                             ->columnSpan(1)
                             ->copyable()
@@ -417,8 +436,8 @@ class StabilityConsultationResource extends Resource
                             ->formatStateUsing(fn($state) => $state ? \Carbon\Carbon::parse($state)->format('d/m/Y H:i') : 'Não Informada')
                             ->columnSpan(1),
                         TextEntry::make('estimated_exposure_time')
-                            ->label('Tempo Estimado de Exposição (min)')
-                            ->placeholder('Verifique datas nos campos: Última Verificação e Retorno ao Armazenamento')
+                            ->label('Tempo Estimado de Exposição em horas')
+                            ->placeholder('Verifique datas nos campos: Excursão de Temperatura e Retorno ao Armazenamento')
                             ->columnSpan(2),
                     ])
                     ->columns(3),
@@ -438,23 +457,59 @@ class StabilityConsultationResource extends Resource
                         Infolists\Components\RepeatableEntry::make('medications')
                             ->label('Medicamentos')
                             ->schema([
-                                TextEntry::make('medicament_name')
+                                TextEntry::make('medicament_id')
                                     ->label('Nome do Medicamento')
                                     ->size(TextEntry\TextEntrySize::Large)
                                     ->weight('bold')
+                                    ->formatStateUsing(function ($state) {
+                                        return \App\Models\Medicament::find($state)?->name ?? 'Medicamento não encontrado';
+                                    })
+                                    ->columnSpan(2)
+                                    ->copyable()
+                                    ->copyMessage('Copiado!'),
+
+                                TextEntry::make('manufacturer_id')
+                                    ->label('Fabricante')
+                                    ->formatStateUsing(function ($state) {
+                                        return \App\Models\Manufacturer::find($state)?->name ?? 'Fabricante não encontrado';
+                                    })
+                                    ->weight('bold')
                                     ->columnSpan(2),
-                                TextEntry::make('medicament_manufacturer')
-                                    ->label('Fabricante'),
-                                TextEntry::make('medicament_batch')
-                                    ->label('Lote'),
+                                TextEntry::make('program_category')
+                                    ->label('Programa de Saúde')
+                                    ->columnSpan(2),
+
+                                TextEntry::make('medicament_unit')
+                                    ->label('Apresentação')
+                                    ->badge() // Destaque visual
+                                    ->columnSpan(1),
+
+                                TextEntry::make('medicament_lote')
+                                    ->label('Lote')
+                                    ->columnSpan(1)
+                                    ->copyable()
+                                    ->copyMessage('Copiado!'),
                                 TextEntry::make('medicament_date')
                                     ->label('Data de Validade')
-                                    ->formatStateUsing(fn($state) => $state ? \Carbon\Carbon::parse($state)->format('d/m/Y') : 'Não Informada'),
+                                    ->formatStateUsing(fn($state) => $state ? \Carbon\Carbon::parse($state)->format('d/m/Y') : 'Não Informada')
+                                    ->columnSpan(1),
                                 TextEntry::make('medicament_quantity')
-                                    ->label('Quantidade'),
+                                    ->label('Quantidade')
+                                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')) // Formatação de milhar
+                                    ->columnSpan(1),
+                                TextEntry::make('unit_value')
+                                    ->label('Valor Unitário (R$)')
+                                    ->formatStateUsing(fn($state) => 'R$ ' . number_format($state, 2, ',', '.')) // Formatação monetária
+                                    ->columnSpan(1),
+                                TextEntry::make('total_value')
+                                    ->label('Total (R$)')
+                                    ->formatStateUsing(fn($state) => $state !== null ? 'R$ ' . number_format($state, 2, ',', '.') : 'R$ 0,00')
+                                    ->columnSpan(1),
+
                             ])
-                            ->columns(3)
+                            ->columns(4) // Melhor distribuição visual
                             ->columnSpanFull(),
+
                     ])
                     ->columns(2),
             ])->columnSpan(2),
