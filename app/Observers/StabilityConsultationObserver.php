@@ -12,11 +12,28 @@ class StabilityConsultationObserver
      */
     public function created(StabilityConsultation $stabilityConsultation): void
     {
-        // Criar o registro em Analysis com os dados necessários
+        $stabilityConsultationId = $stabilityConsultation->id;
+        $protocolNumber = $stabilityConsultation->protocol_number;
+
+        $medications = collect($stabilityConsultation->medications)->map(function ($medication) {
+            return [
+                'medicament_id' => $medication['medicament_id'],
+                'medicament_unit' => $medication['medicament_unit'],
+                'medicament_lote' => $medication['medicament_lote'],
+                'manufacturer_id' => $medication['manufacturer_id'],
+                'medicament_date' => $medication['medicament_date'],
+                'medicament_quantity' => $medication['medicament_quantity'],
+                'program_category' => $medication['program_category'],
+                'unit_value' => $medication['unit_value'],
+                'total_value' => $medication['total_value'],
+            ];
+        })->toArray(); // Convertendo para array
+
+        // Criando o registro em AnalysisResource com o campo medications contendo todos os medicamentos
         Analysis::create([
-            'analysis_id' => $stabilityConsultation->id, // Exemplo de vínculo
-            'role' => 'aberto', // Status inicial
-            'medications' => $stabilityConsultation->medications, // Copiar o campo medications
+            'stability_consultation_id' => $stabilityConsultationId,
+            'protocol_number' => $protocolNumber,
+            'medications' => $medications,
         ]);
     }
 

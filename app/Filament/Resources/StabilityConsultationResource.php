@@ -349,7 +349,7 @@ class StabilityConsultationResource extends Resource
                 Tables\Columns\TextColumn::make('protocol_number')
                     ->label('Protocolo')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('institution_name')
+                Tables\Columns\TextColumn::make('estabelecimento.name')
                     ->label('Nome da Instituição')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('cnpj')

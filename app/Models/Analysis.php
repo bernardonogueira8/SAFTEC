@@ -6,14 +6,17 @@ use Spatie\Activitylog\LogOptions;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Analysis extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory, LogsActivity, SoftDeletes;
 
     protected $fillable = [
+        'stability_consultation_id',  // Coluna para armazenar o ID da consulta
+        'protocol_number',  // Coluna para armazenar o número do protocolo
         'lab_responsible',  // Responsável pelo laboratório
         'lab_notes',        // Notas do laboratório
         'unit_notes',       // Notas da unidade
