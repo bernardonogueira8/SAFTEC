@@ -12,7 +12,7 @@ class Medicament extends Model
     protected $fillable = [
         'name',
         'simpas',
-        'observation',
+        'text_bula',
     ];
 
     public function medicaments()

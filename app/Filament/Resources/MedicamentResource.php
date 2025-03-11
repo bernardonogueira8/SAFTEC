@@ -54,7 +54,7 @@ class MedicamentResource extends Resource
                 TextInput::make('simpas')
                     ->label('Codigo SIMPAS')
                     ->helperText('Informe o código SIMPAS do medicamento'),
-                Textarea::make('observation')
+                Textarea::make('text_bula')
                     ->label('Texto padrão para analise de bula')
                     ->helperText('Informe o texto padrão'),
 
@@ -72,7 +72,7 @@ class MedicamentResource extends Resource
                 Tables\Columns\TextColumn::make('simpas')
                     ->label('Codigo SIMPAS')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('observation')
+                Tables\Columns\TextColumn::make('text_bula')
                     ->limit(20)
                     ->label('Texto padrão'),
             ])

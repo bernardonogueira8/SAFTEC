@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('simpas')->nullable()->unique();
             $table->text('name');
-            $table->longText('observation')->nullable();
+            $table->longText('text_bula')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

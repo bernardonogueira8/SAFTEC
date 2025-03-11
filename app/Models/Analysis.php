@@ -53,11 +53,12 @@ class Analysis extends Model
     {
         return $this->belongsTo(StabilityConsultation::class, 'analysis_id');
     }
-    
-    public function medicament()
+
+    public function medicaments()
     {
-        return $this->belongsTo(Medicament::class, 'medicament_id');
+        return $this->belongsToMany(Medicament::class, 'analysis_medicament', 'analysis_id', 'medicament_id');
     }
+
 
     public function manufacturer()
     {
@@ -71,5 +72,9 @@ class Analysis extends Model
                 $model->estabelecimento_id = auth()->user()->estabelecimento_id;
             }
         });
+    }
+    public function estabelecimento()
+    {
+        return $this->belongsTo(Estabelecimento::class);
     }
 }

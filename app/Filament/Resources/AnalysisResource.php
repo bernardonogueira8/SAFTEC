@@ -25,6 +25,7 @@ use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Wizard\Step;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Forms\Components\ToggleButtons;
+use Filament\Forms\Components\BelongsToSelect;
 use App\Filament\Resources\AnalysisResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\AnalysisResource\RelationManagers;
@@ -69,11 +70,6 @@ class AnalysisResource extends Resource
                 Wizard::make([
                     Wizard\Step::make('Análise Técnica')
                         ->schema([
-                            TextInput::make('estabelecimento.name')
-                                ->label('Estabelecimento')
-                                ->readOnly()
-                                ->default(fn($record) => $record->estabelecimento->name ?? 'Não informado'),
-
                             Repeater::make('medications')
                                 ->label('Análise Técnica')
                                 ->addable(false)
@@ -151,18 +147,25 @@ class AnalysisResource extends Resource
                                             'NÃO ESTÁVEL' => 'NÃO ESTÁVEL',
                                             'SOLICITAR MAIS INFORMAÇÕES AO FABRICANTE' => 'SOLICITAR MAIS INFORMAÇÕES AO FABRICANTE',
                                         ]),
-                                    // Campos adicionais que o usuário pode preencher
-                                    Textarea::make('observation')
+                                    Textarea::make('text_bula')
                                         ->label('Análise Técnica')
                                         ->autosize()
+                                        ->columnSpanFull()
+                                        ->default(fn($record) => optional($record?->medicaments->first())->observation)
+                                        ->readOnly(),
 
-                                        ->columnSpanFull(),
+
                                 ])->columns(4)
                                 ->columnSpanFull(),
                         ]),
 
                     Wizard\Step::make('Análise Laboratorial')
                         ->schema([
+                            Select::make('estabelecimento_id')
+                                ->label('Estabelecimento')
+                                ->options(\App\Models\Estabelecimento::pluck('name', 'id'))
+                                ->dehydrated()
+                                ->disabled(),
 
                             ToggleButtons::make('lab_responsible')
                                 ->label('Houve resposta do Laboratório:')
