@@ -6,6 +6,7 @@ use Filament\Forms;
 use Filament\Tables;
 use App\Models\Analysis;
 use Filament\Forms\Form;
+use App\Models\Medicament;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Select;
@@ -17,10 +18,13 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\Layout\Grid;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\RichEditor;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Wizard\Step;
 use Filament\Tables\Filters\TrashedFilter;
+use Filament\Forms\Components\ToggleButtons;
 use App\Filament\Resources\AnalysisResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\AnalysisResource\RelationManagers;
@@ -62,113 +66,160 @@ class AnalysisResource extends Resource
     {
         return $form
             ->schema([
-                // Forms\Components\Toggle::make('lab_responsible')
-                //     ->required(),
-                // Forms\Components\Textarea::make('lab_notes')
-                //     ->columnSpanFull(),
-                // Forms\Components\Textarea::make('unit_notes')
-                //     ->columnSpanFull(),
-                // Forms\Components\TextInput::make('medications'),
-                // Forms\Components\TextInput::make('created_by')
-                //     ->numeric(),
-                // Wizard::make([
-                //     Wizard\Step::make('Análise Técnica')
-                //         ->schema([
-                //             Repeater::make('medications')
-                //                 ->label('Análise Técnica')
-                //                 ->schema([
-                //                     TextInput::make('medicament_name')
-                //                         ->label('Nome do Medicamento')
-                //                         ->disabled()
-                //                         ->columnSpan(2),
-                //                     Forms\Components\Select::make('boolean_bula')
-                //                         ->label('Situação')
-                //                         ->native(false)
-                //                         ->searchable()
-                //                         ->options([
-                //                             'ESTÁVEL' => 'ESTÁVEL',
-                //                             'NÃO ESTÁVEL' => 'NÃO ESTÁVEL',
-                //                             'SOLICITAR MAIS INFORMAÇÕES AO FABRICANTE' => 'SOLICITAR MAIS INFORMAÇÕES AO FABRICANTE',
-                //                         ]),
+                Wizard::make([
+                    Wizard\Step::make('Análise Técnica')
+                        ->schema([
+                            TextInput::make('estabelecimento.name')
+                                ->label('Estabelecimento')
+                                ->readOnly()
+                                ->default(fn($record) => $record->estabelecimento->name ?? 'Não informado'),
 
+                            Repeater::make('medications')
+                                ->label('Análise Técnica')
+                                ->addable(false)
+                                ->deletable(false)
+                                ->schema([
+                                    Select::make('medicament_id')
+                                        ->label('Nome do Medicamento')
+                                        ->columnSpan(2)
+                                        ->relationship('medicament', 'name') // Certifique-se de que é 'medicament'
+                                        ->disabled()
+                                        ->dehydrated(),
+                                    Select::make('medicament_unit')
+                                        ->label('Apresentação')
+                                        ->options([
+                                            'AMPOLA' => 'Ampola',
+                                            'CÁPSULA' => 'Cápsula',
+                                            'COMPRIMIDO' => 'Comprimido',
+                                        ])
+                                        ->disabled()
+                                        ->dehydrated()
+                                        ->required(),
+                                    Select::make('manufacturer_id')
+                                        ->label('Fabricante')
+                                        ->relationship('manufacturer', 'name') // Certifique-se de que é 'manufacturer'
+                                        ->disabled()
+                                        ->dehydrated(),
+                                    Select::make('program_category')
+                                        ->label('Programa de Saúde')
+                                        ->options([
+                                            'AÇÃO JUDICIAL' => 'Ação Judicial',
+                                            'CEAF 1A - MS' => 'CEAF 1A - MS',
+                                            'CEAF 1B SESAB' => 'CEAF 1B SESAB',
+                                            'ENDEMIAS' => 'Endemias',
+                                            'MINISTÉRIO DA SAÚDE/JUDICIALIZAÇÃO' => 'Ministério da Saúde/Judicialização',
+                                            'HEPATITES VIRAIS' => 'Hepatites Virais',
+                                            'HOSPITALAR' => 'Hospitalar',
+                                            'INSULINA DA ATENÇÃO BÁSICA' => 'Insulina da Atenção Básica',
+                                            'ONCOLOGIA' => 'Oncologia',
+                                            'PROGRAMA DST/AIDS' => 'Programa DST/AIDS',
+                                            'PROTOCOLO ESTADUAL PALIVIZUMABE' => 'Protocolo Estadual Palivizumabe',
+                                            'TUBERCULOSE' => 'Tuberculose',
+                                        ])
+                                        ->disabled()
+                                        ->dehydrated()
+                                        ->columnSpan(2)
+                                        ->required(),
+                                    TextInput::make('medicament_lote')
+                                        ->label('Lote')
+                                        ->readOnly()
+                                        ->required(),
+                                    DatePicker::make('medicament_date')
+                                        ->label('Data de Validade')
+                                        ->readOnly()
+                                        ->required(),
+                                    TextInput::make('medicament_quantity')
+                                        ->label('Quantidade')
+                                        ->numeric()
+                                        ->required(),
+                                    TextInput::make('unit_value')
+                                        ->label('Valor Unitário (R$)')
+                                        ->numeric()
+                                        ->step(0.01)
+                                        ->required(),
+                                    TextInput::make('total_value')
+                                        ->label('Total (R$)')
+                                        ->numeric()
+                                        ->step(0.01)
+                                        ->readOnly(),
+                                    Forms\Components\Select::make('boolean_bula')
+                                        ->label('Situação')
+                                        ->native(false)
+                                        ->searchable()
+                                        ->options([
+                                            'ESTÁVEL' => 'ESTÁVEL',
+                                            'NÃO ESTÁVEL' => 'NÃO ESTÁVEL',
+                                            'SOLICITAR MAIS INFORMAÇÕES AO FABRICANTE' => 'SOLICITAR MAIS INFORMAÇÕES AO FABRICANTE',
+                                        ]),
+                                    // Campos adicionais que o usuário pode preencher
+                                    Textarea::make('observation')
+                                        ->label('Análise Técnica')
+                                        ->autosize()
 
-                //                     // Campos adicionais que o usuário pode preencher
-                //                     RichEditor::make('technical_analysis')
-                //                         ->label('Análise Técnica')
-                //                         ->toolbarButtons([])
-                //                         ->columnSpanFull(),
+                                        ->columnSpanFull(),
+                                ])->columns(4)
+                                ->columnSpanFull(),
+                        ]),
 
-                //                 ])
-                //                 ->columnSpanFull()
-                //                 ->columns(3)
-                //                 ->addable(false)
-                //                 ->default(fn(Forms\ComponentContainer $form) => $form->getState()['medications'] ?? []),
-                //         ]),
+                    Wizard\Step::make('Análise Laboratorial')
+                        ->schema([
 
-                //     Wizard\Step::make('Análise Laboratorial')
-                //         ->schema([
-                //             // Toggle que define a resposta do laboratório
-                //             Toggle::make('resp_laboratory')
-                //                 ->label('Houve resposta do Laboratório:')
-                //                 ->inline(false)
-                //                 ->offColor('danger') // Cor quando desativado
-                //                 ->onColor('success')  // Cor quando ativado
-                //                 ->offIcon('heroicon-m-x-mark')
-                //                 ->onIcon('heroicon-m-check')
-                //                 ->reactive() // Torna o campo reativo
-                //                 ->afterStateUpdated(function ($state, callable $set) {
-                //                     if ($state) {
-                //                     } else {
-                //                         $set('text_laboratory', null); // Reseta o texto
-                //                         $set('text_unidade', null); // Reseta o texto
-                //                     }
-                //                 }),
+                            ToggleButtons::make('lab_responsible')
+                                ->label('Houve resposta do Laboratório:')
+                                ->boolean()
+                                ->reactive() // Torna o campo reativo
+                                ->afterStateUpdated(function ($state, callable $set) {
+                                    if ($state) {
+                                    } else {
+                                        $set('lab_notes', null); // Reseta o texto
+                                        $set('unit_notes', null); // Reseta o texto
+                                    }
+                                })
+                                ->grouped(),
+                            Forms\Components\Grid::make(2) // Define 2 colunas
+                                ->schema([
+                                    // Campo para observações do laboratório
+                                    Forms\Components\RichEditor::make('lab_notes')
+                                        ->label('Analise do Laboratório')
+                                        ->toolbarButtons([
+                                            'blockquote',
+                                            'bold',
+                                            'bulletList',
+                                            'h2',
+                                            'h3',
+                                            'italic',
+                                            'link',
+                                            'orderedList',
+                                            'underline',
+                                            'undo',
+                                        ])
+                                        ->requiredIf('lab_responsible', true)  // Obrigatório se o toggle estiver ativado
+                                        ->disabled(fn($get) => !$get('lab_responsible')) // Esconde se o toggle estiver desativado
+                                        ->columnSpan(1), // Ocupa uma coluna
 
-                //             // Organiza os campos lado a lado
-                //             Forms\Components\Grid::make(2) // Define 2 colunas
-                //                 ->schema([
-                //                     // Campo para observações do laboratório
-                //                     Forms\Components\RichEditor::make('text_laboratory')
-                //                         ->label('Analise do Laboratório')
-                //                         ->toolbarButtons([
-                //                             'blockquote',
-                //                             'bold',
-                //                             'bulletList',
-                //                             'h2',
-                //                             'h3',
-                //                             'italic',
-                //                             'link',
-                //                             'orderedList',
-                //                             'underline',
-                //                             'undo',
-                //                         ])
-                //                         ->requiredIf('resp_laboratory', true)  // Obrigatório se o toggle estiver ativado
-                //                         ->disabled(fn($get) => !$get('resp_laboratory')) // Esconde se o toggle estiver desativado
-                //                         ->columnSpan(1), // Ocupa uma coluna
+                                    // Campo para observações da unidade
+                                    Forms\Components\RichEditor::make('unit_notes')
+                                        ->label('Observações da Unidade')
+                                        ->toolbarButtons([
+                                            'blockquote',
+                                            'bold',
+                                            'bulletList',
+                                            'h2',
+                                            'h3',
+                                            'italic',
+                                            'link',
+                                            'orderedList',
+                                            'underline',
+                                            'undo',
+                                        ])
+                                        ->requiredIf('lab_responsible', true)  // Obrigatório se o toggle estiver ativado
+                                        ->disabled(fn($get) => !$get('lab_responsible')) // Esconde se o toggle estiver desativado
+                                        ->columnSpan(1), // Ocupa uma coluna
+                                ]),
 
-                //                     // Campo para observações da unidade
-                //                     Forms\Components\RichEditor::make('text_unidade')
-                //                         ->label('Observações da Unidade')
-                //                         ->toolbarButtons([
-                //                             'blockquote',
-                //                             'bold',
-                //                             'bulletList',
-                //                             'h2',
-                //                             'h3',
-                //                             'italic',
-                //                             'link',
-                //                             'orderedList',
-                //                             'underline',
-                //                             'undo',
-                //                         ])
-                //                         ->requiredIf('resp_laboratory', true)  // Obrigatório se o toggle estiver ativado
-                //                         ->disabled(fn($get) => !$get('resp_laboratory')) // Esconde se o toggle estiver desativado
-                //                         ->columnSpan(1), // Ocupa uma coluna
-                //                 ]),
-
-                // ]),
-                // ])->columnSpan('full')
-                //     ->columns(2),
+                        ]),
+                ])->columnSpan('full')
+                    ->columns(2),
 
 
 

@@ -14,7 +14,7 @@ class Medicament extends Model
         'simpas',
         'observation',
     ];
- 
+
     public function medicaments()
     {
         return $this->belongsToMany(Medicament::class, 'medicament_user', 'user_id', 'medicament_id');

@@ -223,11 +223,12 @@ class StabilityConsultationResource extends Resource
                                     Select::make('medicament_id')
                                         ->label('Nome do Medicamento')
                                         ->placeholder('Selecione um medicamento')
-                                        ->relationship('medicaments', 'name', fn($query) => $query->orderBy('name')) // Ordenação alfabética
+                                        ->relationship('medicaments', 'name', fn($query) => $query->orderBy('name'))
                                         ->searchable()
                                         ->preload()
                                         ->required()
                                         ->columnSpan(2),
+
 
                                     Select::make('medicament_unit')
                                         ->label('Apresentação')

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\User;
+use App\Models\Analysis;
 use Illuminate\Support\Str;
 use App\Models\Estabelecimento;
 use Spatie\Activitylog\LogOptions;
@@ -10,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -99,9 +101,17 @@ class StabilityConsultation extends Model
     {
         return $this->belongsTo(Manufacturer::class);
     }
+    public function getMedicamentsAttribute()
+    {
+        return $this->medications ?? [];
+    }
 
     public function medicaments()
     {
-        return $this->hasMany(Medicament::class);
+        return $this->hasMany(Medicament::class, 'medicament_id');
+    }
+    public function analyses(): HasMany
+    {
+        return $this->hasMany(Analysis::class);
     }
 }

@@ -15,12 +15,13 @@ class Analysis extends Model
     use HasFactory, LogsActivity, SoftDeletes;
 
     protected $fillable = [
-        'stability_consultation_id',  // Coluna para armazenar o ID da consulta
-        'protocol_number',  // Coluna para armazenar o número do protocolo
         'lab_responsible',  // Responsável pelo laboratório
         'lab_notes',        // Notas do laboratório
         'unit_notes',       // Notas da unidade
         'medications',      // Lista de medicamentos
+        'stability_consultation_id',  // Coluna para armazenar o ID da consulta
+        'protocol_number',  // Coluna para armazenar o número do protocolo
+        'estabelecimento_id',
         'created_by',       // Usuário que criou a análise
         'analysis_id',      // ID da análise
         'user_id',          // ID do usuário que contribui
@@ -47,9 +48,28 @@ class Analysis extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
-    // Defina a relação com StabilityConsultation, se necessário
+
     public function stabilityConsultation()
     {
         return $this->belongsTo(StabilityConsultation::class, 'analysis_id');
+    }
+    
+    public function medicament()
+    {
+        return $this->belongsTo(Medicament::class, 'medicament_id');
+    }
+
+    public function manufacturer()
+    {
+        return $this->belongsTo(Manufacturer::class, 'manufacturer_id');
+    }
+    public static function boot()
+    {
+        parent::boot();
+        static::creating(function ($model) {
+            if (auth()->check()) {
+                $model->estabelecimento_id = auth()->user()->estabelecimento_id;
+            }
+        });
     }
 }
