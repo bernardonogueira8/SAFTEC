@@ -14,6 +14,7 @@ class StabilityConsultationObserver
     {
         $stabilityConsultationId = $stabilityConsultation->id;
         $protocolNumber = $stabilityConsultation->protocol_number;
+        $estabelecimento_id = $stabilityConsultation->estabelecimento_id;
 
         $medications = collect($stabilityConsultation->medications)->map(function ($medication) {
             return [
@@ -34,6 +35,7 @@ class StabilityConsultationObserver
             'stability_consultation_id' => $stabilityConsultationId,
             'protocol_number' => $protocolNumber,
             'medications' => $medications,
+            'estabelecimento_id' => $estabelecimento_id,
         ]);
     }
 

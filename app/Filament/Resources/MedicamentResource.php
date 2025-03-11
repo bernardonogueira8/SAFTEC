@@ -24,6 +24,11 @@ class MedicamentResource extends Resource
     protected static ?string $model = Medicament::class;
     protected static ?string $navigationIcon = 'lucide-pill';
 
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+
     public static function getNavigationIcon(): string
     {
         return 'lucide-pill';

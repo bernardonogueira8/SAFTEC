@@ -25,6 +25,11 @@ class ManufacturerResource extends Resource
 
     protected static ?string $navigationIcon = 'lucide-package-check';
 
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+
     public static function getNavigationIcon(): string
     {
         return 'lucide-package-check';
@@ -76,14 +81,14 @@ class ManufacturerResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('cnpj')
+                    ->label('CNPJ')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nome Completo')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('company_name')
                     ->label('Razão Social')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('cnpj')
-                    ->label('CNPJ')
                     ->searchable(),
             ])
             ->filters([

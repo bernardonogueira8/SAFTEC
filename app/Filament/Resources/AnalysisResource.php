@@ -29,11 +29,11 @@ class AnalysisResource extends Resource
 {
     protected static ?string $model = Analysis::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'lucide-flask-conical';
 
     public static function getNavigationIcon(): string
     {
-        return 'heroicon-o-plus-circle';
+        return 'lucide-flask-conical';
     }
     protected static ?string $modelLabel = 'Analise';
     public static function getNavigationLabel(): string
@@ -44,6 +44,19 @@ class AnalysisResource extends Resource
     {
         return 'Processos';
     }
+
+    public static function getNavigationBadge(): ?string
+    {
+        $query = static::getModel()::query();
+
+        if (!auth()->user()->hasRole('super_admin')) {
+            $query->where('estabelecimento_id', auth()->user()->estabelecimento_id);
+        }
+
+        return $query->count();
+    }
+
+
 
     public static function form(Form $form): Form
     {
@@ -167,19 +180,15 @@ class AnalysisResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\IconColumn::make('lab_responsible')
-                    ->boolean(),
-                Tables\Columns\TextColumn::make('created_by')
-                    ->numeric()
+                Tables\Columns\TextColumn::make('protocol_number')
+                    ->label('Protocolo')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
+                    ->label('Criado em')
                     ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable(),
+                Tables\Columns\IconColumn::make('lab_responsible')
+                    ->boolean(),
                 Tables\Columns\TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()

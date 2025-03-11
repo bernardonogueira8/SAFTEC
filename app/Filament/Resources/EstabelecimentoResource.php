@@ -88,12 +88,15 @@ class EstabelecimentoResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('cnes')
+                    ->label('CNES')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('nome')
+                Tables\Columns\TextColumn::make('name')
+                    ->label('Nome')
                     ->sortable()
                     ->words(4)
                     ->searchable(),
                 Tables\Columns\TextColumn::make('macrorregiao')
+                    ->label('Macrorregião')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()

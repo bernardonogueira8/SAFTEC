@@ -19,12 +19,22 @@ return new class extends Migration
             $table->boolean('lab_responsible')->default(false)->comment('Indica se há um responsável pelo laboratório');
             $table->longText('lab_notes')->nullable()->comment('Notas do laboratório');
             $table->longText('unit_notes')->nullable()->comment('Notas da unidade');
-            $table->unsignedBigInteger('stability_consultation_id');
-            $table->string('protocol_number');
 
             // Lista de medicamentos analisados
             $table->json('medications')->nullable()->comment('Lista de medicamentos envolvidos na análise');
 
+            // Chave estrangeira
+            $table->foreignId('stability_consultation_id')
+                ->nullable()
+                ->constrained()
+                ->cascadeOnDelete();
+            $table->string('protocol_number')
+                ->comment('Protocolo do registro da excursão de estabilidade');
+            $table->foreignId('estabelecimento_id')
+                ->nullable()
+                ->constrained()
+                ->cascadeOnDelete()
+                ->comment('Estabelecimento relacionado à consulta de estabilidade');
             // Usuário que criou a análise
             $table->foreignId('created_by')
                 ->nullable()

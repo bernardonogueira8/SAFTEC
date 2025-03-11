@@ -133,6 +133,11 @@ class UserResource extends Resource
                 TextColumn::make('name')
                     ->label('Nome Completo')
                     ->searchable(),
+                TextColumn::make('roles.name')
+                    ->label('Perfil do usuário:')
+                    ->badge()
+                    ->separator(',')
+                    ->searchable(),
                 TextColumn::make('email')
                     ->label('E-mail')
                     ->copyable()

@@ -35,6 +35,7 @@ return new class extends Migration
             $table->json('medications')->nullable()->comment('Lista de medicamentos envolvidos na excursão');
 
             // Dados administrativos
+            $table->string('manufacturer_id')->nullable();
             $table->string('order_number')->nullable()->comment('Número do pedido');
             $table->string('distribution_number')->nullable()->comment('Número da distribuição');
             $table->text('observations')->nullable()->comment('Observações adicionais');
