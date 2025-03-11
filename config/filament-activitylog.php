@@ -2,8 +2,8 @@
 
 return [
     'resources' => [
-        'label'                  => 'Activity Log',
-        'plural_label'           => 'Activity Logs',
+        'label'                  => 'Registro de atividade',
+        'plural_label'           => 'Registro de atividades',
         'navigation_item'        => true,
         'navigation_group'       => null,
         'navigation_icon'        => 'heroicon-o-shield-exclamation',

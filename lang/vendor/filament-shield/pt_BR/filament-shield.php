@@ -31,12 +31,12 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'nav.group' => 'Configurações',
+    'nav.group' => 'Cadastros',
     'nav.role.label' => 'Funções',
     'nav.role.icon' => 'heroicon-o-shield-check',
     'resource.label.role' => 'Função',
     'resource.label.roles' => 'Funções',
-    
+
 
     /*
     |--------------------------------------------------------------------------

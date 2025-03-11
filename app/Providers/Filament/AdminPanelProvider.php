@@ -36,8 +36,9 @@ class AdminPanelProvider extends PanelProvider
                 'primary' => Color::Amber,
             ])
             ->navigationGroups([
-                'Administração',
-                'Configurações',
+                'Cadastros',
+                'Processos',
+                'Relatórios',
             ])
             ->favicon(asset('favicon.ico'))
             ->plugins([
@@ -47,13 +48,12 @@ class AdminPanelProvider extends PanelProvider
                     ->slug('my-profile')
                     ->setTitle('Meu Perfil')
                     ->setNavigationLabel('Meu Perfil')
-                    ->setNavigationGroup('Configurações')
                     ->setIcon('heroicon-o-user'),
                 ActivitylogPlugin::make()
-                    ->label('Log')
+                    ->label('Log do sistema')
                     ->pluralLabel('Logs')
                     ->navigationItem(true)
-                    ->navigationGroup('Configurações')
+                    ->navigationGroup('Relatórios')
                     ->navigationIcon('heroicon-o-shield-exclamation')
                     ->navigationCountBadge(true)
                     ->navigationSort(2),

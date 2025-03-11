@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\User;
+use App\Models\Analysis;
 use Illuminate\Support\Str;
 use App\Models\Estabelecimento;
 use Spatie\Activitylog\LogOptions;
@@ -10,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -79,13 +81,37 @@ class StabilityConsultation extends Model
                 Storage::disk('s3')->delete($stabilityConsultation->file_monitor_temp);
             }
         });
+        static::saving(function ($model) {
+            $medications = $model->medications ?? []; // Garante que seja um array
+
+            foreach ($medications as &$medication) {
+                $medication['total_value'] = ($medication['medicament_quantity'] ?? 0) * ($medication['unit_value'] ?? 0);
+            }
+
+            $model->medications = $medications; // Agora funciona corretamente!
+        });
     }
-    // public function estabelecimento(): BelongsTo
-    // {
-    //     return $this->belongsTo(Estabelecimento::class);
-    // }
+
     public function estabelecimento()
     {
         return $this->belongsTo(Estabelecimento::class, 'estabelecimento_id');
+    }
+
+    public function manufacturer()
+    {
+        return $this->belongsTo(Manufacturer::class);
+    }
+    public function getMedicamentsAttribute()
+    {
+        return $this->medications ?? [];
+    }
+
+    public function medicaments()
+    {
+        return $this->hasMany(Medicament::class, 'medicament_id');
+    }
+    public function analyses(): HasMany
+    {
+        return $this->hasMany(Analysis::class);
     }
 }

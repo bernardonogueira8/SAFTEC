@@ -34,4 +34,8 @@ class Estabelecimento extends Model
     {
         return $this->hasMany(CallCenter::class);
     }
+    public function analysis(): HasMany
+    {
+        return $this->hasMany(Analysis::class);
+    }
 }

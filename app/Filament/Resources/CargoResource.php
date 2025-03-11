@@ -22,11 +22,11 @@ class CargoResource extends Resource
         return static::getModel()::count();
     }
 
-    protected static ?string $navigationIcon = 'heroicon-o-identification';
+    protected static ?string $navigationIcon = 'lucide-user-round-cog';
 
     public static function getNavigationIcon(): string
     {
-        return 'heroicon-o-identification';
+        return 'lucide-user-round-cog';
     }
 
     protected static ?string $modelLabel = 'Cargos/Função';
@@ -36,9 +36,9 @@ class CargoResource extends Resource
     }
     public static function getNavigationGroup(): ?string
     {
-        return 'Configurações';
+        return 'Cadastros';
     }
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 0;
 
     public static function form(Form $form): Form
     {

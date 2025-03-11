@@ -18,6 +18,11 @@
         </h1>
         <div class="pl-0 text-base leading-relaxed md:w-2/5 sm:w-2/5 sm:pl-10 sm:justify-center">
             <div class="flex justify-center gap-4 mb-6 sm:justify-end">
+                <button wire:click="redirecionarParaLogin"
+                    class="px-4 py-2 font-semibold text-white transition rounded-lg bg-indigo-950">
+                    Login
+                    </a>
+                </button>
                 <button wire:click="$set('filtro', 'tudo')"
                     class="px-4 py-2 font-semibold text-white transition rounded-lg"
                     :class="{ 'bg-blue-600': @js($filtro) === 'tudo', 'bg-gray-500': @js($filtro) !== 'tudo' }">

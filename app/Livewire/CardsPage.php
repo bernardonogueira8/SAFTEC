@@ -23,6 +23,11 @@ class CardsPage extends Component
         $this->resetPage(); // Reinicia a paginação ao mudar o filtro
     }
 
+    public function redirecionarParaLogin()
+    {
+        return redirect()->route('filament.admin.auth.login');
+    }
+
     public function render()
     {
         // Aplicando o filtro corretamente

@@ -45,7 +45,7 @@ class CardResource extends Resource
 
     public static function getNavigationIcon(): string
     {
-        return 'heroicon-o-cube';
+        return 'lucide-box';
     }
     public static function getNavigationLabel(): string
     {
@@ -53,7 +53,7 @@ class CardResource extends Resource
     }
     public static function getNavigationGroup(): ?string
     {
-        return 'Administração';
+        return 'Processos';
     }
 
 

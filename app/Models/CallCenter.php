@@ -24,7 +24,7 @@ class CallCenter extends Model
         'resp_aquisicao',
         'dispensation_date',
         'response_date',
-        'medicamentos',
+        'medicaments',
         'observation',
         'mirror_file',
         'attachments',
@@ -34,7 +34,7 @@ class CallCenter extends Model
     ];
     protected $casts = [
         'attachments' => 'array',
-        'medicamentos' => 'array',
+        'medicaments' => 'array',
 
     ];
 
@@ -59,6 +59,18 @@ class CallCenter extends Model
     {
         return $this->belongsTo(Estabelecimento::class, 'estabelecimento_id');
     }
+
+    public function estabelecimentos()
+    {
+        return $this->belongsTo(Estabelecimento::class);
+    }
+
+    public function medicaments()
+    {
+        return $this->belongsToMany(Medicament::class, 'call_center_medicament', 'call_center_id', 'medicament_id');
+    }
+
+
     protected static function booted()
     {
         static::deleting(function ($callCenter) {
@@ -82,7 +94,7 @@ class CallCenter extends Model
         parent::boot();
 
         static::creating(function ($model) {
-            if (auth()->check()) {
+            if (auth()->check() && auth()->user()->estabelecimento_id) {
                 $model->estabelecimento_id = auth()->user()->estabelecimento_id;
             }
         });

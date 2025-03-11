@@ -33,7 +33,7 @@ class UserResource extends Resource
 
     protected static ?string $modelLabel = 'Usuário';
 
-    protected static ?int $navigationSort = 6;
+    protected static ?int $navigationSort = 1;
 
     public static function getNavigationBadge(): ?string
     {
@@ -45,7 +45,7 @@ class UserResource extends Resource
     }
     public static function getNavigationGroup(): ?string
     {
-        return 'Configurações';
+        return 'Cadastros';
     }
     public static function getNavigationIcon(): string
     {
@@ -102,14 +102,13 @@ class UserResource extends Resource
                             ->numeric()
                             ->required()
                             ->maxLength(8),
-                        Forms\Components\TextInput::make('nome')
+                        Forms\Components\TextInput::make('name')
                             ->label('Nome')
                             ->required()
                             ->maxLength(70),
                         Select::make('macrorregiao')
                             ->label('Macrorregião')
                             ->searchable()
-                            ->required()
                             ->options([
                                 'Centro-Leste' => 'Centro-Leste',
                                 'Centro-Norte' => 'Centro-Norte',
@@ -133,6 +132,11 @@ class UserResource extends Resource
             ->columns([
                 TextColumn::make('name')
                     ->label('Nome Completo')
+                    ->searchable(),
+                TextColumn::make('roles.name')
+                    ->label('Perfil do usuário:')
+                    ->badge()
+                    ->separator(',')
                     ->searchable(),
                 TextColumn::make('email')
                     ->label('E-mail')

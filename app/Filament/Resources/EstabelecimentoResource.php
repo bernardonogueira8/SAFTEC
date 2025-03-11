@@ -34,11 +34,11 @@ class EstabelecimentoResource extends Resource
     }
     public static function getNavigationLabel(): string
     {
-        return 'Estabelecimentos';
+        return 'Lista de Estabelecimentos';
     }
     public static function getNavigationGroup(): ?string
     {
-        return 'Configurações';
+        return 'Cadastros';
     }
     protected static ?int $navigationSort = 5;
 
@@ -67,7 +67,6 @@ class EstabelecimentoResource extends Resource
                         'Macrorregião'
                     )
                     ->searchable()
-                    ->required()
                     ->options([
                         'Centro-Leste' => 'Centro-Leste',
                         'Centro-Norte' => 'Centro-Norte',
@@ -89,12 +88,15 @@ class EstabelecimentoResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('cnes')
+                    ->label('CNES')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('nome')
+                Tables\Columns\TextColumn::make('name')
+                    ->label('Nome')
                     ->sortable()
                     ->words(4)
                     ->searchable(),
                 Tables\Columns\TextColumn::make('macrorregiao')
+                    ->label('Macrorregião')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()

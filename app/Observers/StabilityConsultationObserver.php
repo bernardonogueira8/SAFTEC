@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Models\Analysis;
 use App\Models\StabilityConsultation;
 
 class StabilityConsultationObserver
@@ -11,7 +12,31 @@ class StabilityConsultationObserver
      */
     public function created(StabilityConsultation $stabilityConsultation): void
     {
-        //
+        $stabilityConsultationId = $stabilityConsultation->id;
+        $protocolNumber = $stabilityConsultation->protocol_number;
+        $estabelecimento_id = $stabilityConsultation->estabelecimento_id;
+
+        $medications = collect($stabilityConsultation->medications)->map(function ($medication) {
+            return [
+                'medicament_id' => $medication['medicament_id'],
+                'medicament_unit' => $medication['medicament_unit'],
+                'medicament_lote' => $medication['medicament_lote'],
+                'manufacturer_id' => $medication['manufacturer_id'],
+                'medicament_date' => $medication['medicament_date'],
+                'medicament_quantity' => $medication['medicament_quantity'],
+                'program_category' => $medication['program_category'],
+                'unit_value' => $medication['unit_value'],
+                'total_value' => $medication['total_value'],
+            ];
+        })->toArray(); // Convertendo para array
+
+        // Criando o registro em AnalysisResource com o campo medications contendo todos os medicamentos
+        Analysis::create([
+            'stability_consultation_id' => $stabilityConsultationId,
+            'protocol_number' => $protocolNumber,
+            'medications' => $medications,
+            'estabelecimento_id' => $estabelecimento_id,
+        ]);
     }
 
     /**

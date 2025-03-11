@@ -23,6 +23,18 @@ return new class extends Migration
             // Lista de medicamentos analisados
             $table->json('medications')->nullable()->comment('Lista de medicamentos envolvidos na análise');
 
+            // Chave estrangeira
+            $table->foreignId('stability_consultation_id')
+                ->nullable()
+                ->constrained()
+                ->cascadeOnDelete();
+            $table->string('protocol_number')
+                ->comment('Protocolo do registro da excursão de estabilidade');
+            $table->foreignId('estabelecimento_id')
+                ->nullable()
+                ->constrained()
+                ->cascadeOnDelete()
+                ->comment('Estabelecimento relacionado à consulta de estabilidade');
             // Usuário que criou a análise
             $table->foreignId('created_by')
                 ->nullable()

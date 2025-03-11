@@ -37,11 +37,16 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\CallCenterResource\Pages;
 use Filament\Infolists\Components\Section as InfolistSection;
 use App\Filament\Resources\CallCenterResource\RelationManagers;
+use App\Models\Estabelecimento;
+use App\Models\medicament;
+use App\Models\Medicament as ModelsMedicament;
 use Rmsramos\Activitylog\Actions\ActivityLogTimelineTableAction;
 
 
 class CallCenterResource extends Resource
 {
+    protected static ?string $model = CallCenter::class;
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
@@ -49,11 +54,6 @@ class CallCenterResource extends Resource
                 $query->where('estabelecimento_id', auth()->user()->estabelecimento_id);
             });
     }
-
-    protected static ?string $model = CallCenter::class;
-
-    protected static ?string $modelLabel = 'Ouvidoria';
-
     public static function getNavigationBadge(): ?string
     {
         $query = static::getModel()::query();
@@ -65,20 +65,21 @@ class CallCenterResource extends Resource
         return $query->count();
     }
 
-
     protected static ?string $navigationIcon = 'heroicon-o-bookmark';
-
     public static function getNavigationIcon(): string
     {
-        return 'heroicon-o-bookmark';
+        return 'lucide-message-square-text';
     }
+
+    protected static ?string $modelLabel = 'Ouvidoria';
     public static function getNavigationLabel(): string
     {
         return 'Ouvidoria';
     }
+
     public static function getNavigationGroup(): ?string
     {
-        return 'Administração';
+        return 'Processos';
     }
 
     public static function form(Form $form): Form
@@ -135,9 +136,12 @@ class CallCenterResource extends Resource
                                 ->columnSpan(1),
 
                             // Unidade
-                            TextInput::make('unidade')
+                            Select::make('unidade')
                                 ->label('Unidade:')
                                 ->placeholder('Unidade envolvida na demanda')
+                                ->relationship('estabelecimento', 'name')
+                                ->searchable()
+                                ->preload()
                                 ->columnSpan(3),
 
                             // Responsável da Aquisição
@@ -155,16 +159,19 @@ class CallCenterResource extends Resource
 
                     Wizard\Step::make('Lista de Medicamentos')
                         ->schema([
-                            Repeater::make('medicamentos')
+                            Repeater::make('medicaments')
                                 ->label('Medicamentos')
                                 ->schema([
-                                    TextInput::make('medicament')
+                                    Select::make('medicament_id')
                                         ->label('Adicionar Medicamento:')
                                         ->placeholder('Informe o nome do medicamento')
+                                        ->relationship('medicaments', 'name')  // Relaciona o Select com o nome do medicamento
+                                        ->searchable()  // Permite busca por nome
+                                        ->preload()  // Carrega as opções ao abrir o campo
                                         ->required(),
                                 ])
-                                ->nullable() // Permite que o campo seja nulo
-                                ->columns(1),
+                                ->nullable()  // Permite que o campo seja nulo
+                                ->columns(1),  // Define o layout com 1 coluna
 
                         ]),
 
@@ -247,7 +254,7 @@ class CallCenterResource extends Resource
                         default => 'gray', // Define uma cor padrão para valores não mapeados
                     }),
 
-                TextColumn::make('unidade')
+                TextColumn::make('estabelecimento.name')
                     ->label('Unidade')
                     ->sortable(),
 
@@ -314,7 +321,7 @@ class CallCenterResource extends Resource
                             ->copyMessageDuration(1500)
                             ->placeholder('Dado Sigiloso'),
 
-                        TextEntry::make('unidade')
+                        TextEntry::make('estabelecimento.name')
                             ->label('Unidade')
                             ->columnSpan(2)
                             ->placeholder('Não Informada'),
@@ -330,15 +337,27 @@ class CallCenterResource extends Resource
                             ->placeholder('Não Informada')
                             ->formatStateUsing(fn($state) => $state ? \Carbon\Carbon::parse($state)->format('d/m/Y H:i') : 'Não Informada'),
 
-                        Infolists\Components\TextEntry::make('medicamentos')
-                            ->label('Lista de Medicamentos')
-                            ->bulleted()
-                            ->formatStateUsing(function ($state) {
-                                return is_array($state) ? implode("\n", $state) : $state;
-                            })
-                            ->listWithLineBreaks()
-                            ->columnSpan(2) // Ocupar duas colunas
-                            ->placeholder('Sem Medicamentos cadastrados.'),
+                        RepeatableEntry::make('medicaments')
+                            ->label('Medicamentos')
+                            ->placeholder('Nenhum medicamento cadastrado')
+                            ->schema([
+                                TextEntry::make('medicament_id')
+                                    ->label('') // Campo para exibir o ID do medicamento
+                                    ->formatStateUsing(function ($state, $record) {
+                                        // Verifique se o estado é um ID válido
+                                        if ($state) {
+                                            // Busque o medicamento pelo ID
+                                            $medicament = \App\Models\Medicament::find($state);
+                                            if ($medicament) {
+                                                return $medicament->name; // Retorne o nome do medicamento
+                                            }
+                                        }
+                                        return 'Medicamento não encontrado'; // Caso não encontre o medicamento
+                                    })->columnSpanFull(),
+                            ])->columnSpanFull(),
+
+
+
                     ])
                     ->columns(2),
                 Fieldset::make('Observações')
