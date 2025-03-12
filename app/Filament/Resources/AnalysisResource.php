@@ -8,6 +8,7 @@ use App\Models\Analysis;
 use Filament\Forms\Form;
 use App\Models\Medicament;
 use Filament\Tables\Table;
+use App\Models\Estabelecimento;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
@@ -163,7 +164,7 @@ class AnalysisResource extends Resource
                         ->schema([
                             Select::make('estabelecimento_id')
                                 ->label('Estabelecimento')
-                                ->options(\App\Models\Estabelecimento::pluck('name', 'id'))
+                                ->options(Estabelecimento::pluck('name', 'id'))
                                 ->dehydrated()
                                 ->disabled(),
 
