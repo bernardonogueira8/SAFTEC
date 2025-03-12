@@ -58,7 +58,10 @@ class Analysis extends Model
     {
         return $this->belongsToMany(Medicament::class, 'analysis_medicament', 'analysis_id', 'medicament_id');
     }
-
+    public function medicament()
+    {
+        return $this->belongsTo(Medicament::class, 'medicament_id');
+    }
 
     public function manufacturer()
     {
