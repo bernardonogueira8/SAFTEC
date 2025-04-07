@@ -69,7 +69,7 @@
             <div
                 class="grid w-full grid-cols-1 gap-6 p-6 pt-3 pb-0 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                 @foreach ($cards as $card)
-                    <a href="{{ $card->link }}" target="_blank"
+                    <a href="{{ $card->url }}" target="_blank"
                         class="block overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800 shadow-lg transition-transform transform hover:scale-105
                         w-[240px] h-[270px] flex flex-col relative">
 
@@ -77,23 +77,23 @@
                         <span
                             class="absolute px-3 py-1 text-xs font-semibold text-white uppercase rounded-full top-2 right-2"
                             :class="{
-                                'bg-blue-600': '{{ $card->tipo }}'
+                                'bg-blue-600': '{{ $card->type }}'
                                 === 'dashboard',
-                                'bg-green-500': '{{ $card->tipo }}'
+                                'bg-green-500': '{{ $card->type }}'
                                 === 'ferramenta'
                             }">
-                            {{ ucfirst($card->tipo) }}
+                            {{ ucfirst($card->type) }}
                         </span>
 
-                        <img src="{{ Storage::disk('s3')->url($card->image_path) }}" alt="{{ $card->nome }}"
+                        <img src="{{ Storage::disk('s3')->url($card->image_path) }}" alt="{{ $card->name }}"
                             class="object-cover w-full h-32">
 
                         <div class="flex flex-col flex-grow p-4">
                             <h2 class="text-base font-semibold tracking-tight text-gray-900 dark:text-white">
-                                {{ $card->nome }}
+                                {{ $card->name }}
                             </h2>
                             <p class="flex-grow mt-2 text-sm text-gray-600 dark:text-gray-400">
-                                {{ $card->descricao }}
+                                {{ $card->description }}
                             </p>
                         </div>
                     </a>
