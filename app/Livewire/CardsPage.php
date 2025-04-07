@@ -27,7 +27,7 @@ class CardsPage extends Component
     {
         // Aplicando o filtro corretamente
         $cards = Card::query()
-            ->when($this->filtro !== 'tudo', fn($query) => $query->where('tipo', $this->filtro))
+            ->when($this->filtro !== 'tudo', fn($query) => $query->where('type', $this->filtro))
             ->paginate(10); // Define o número de cards por página
 
         return view('livewire.cards-page', compact('cards'));
