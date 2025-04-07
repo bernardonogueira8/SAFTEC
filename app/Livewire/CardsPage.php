@@ -23,17 +23,11 @@ class CardsPage extends Component
         $this->resetPage(); // Reinicia a paginação ao mudar o filtro
     }
 
-    public function redirecionarParaLogin()
-    {
-        return redirect()->route('filament.admin.auth.login');
-    }
-
     public function render()
     {
         // Aplicando o filtro corretamente
         $cards = Card::query()
             ->when($this->filtro !== 'tudo', fn($query) => $query->where('tipo', $this->filtro))
-            ->whereNotNull('imagem') // Apenas cards com imagem
             ->paginate(10); // Define o número de cards por página
 
         return view('livewire.cards-page', compact('cards'));

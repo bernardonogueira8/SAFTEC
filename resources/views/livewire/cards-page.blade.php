@@ -85,7 +85,7 @@
                             {{ ucfirst($card->tipo) }}
                         </span>
 
-                        <img src="{{ Storage::disk('s3')->url($card->imagem) }}" alt="{{ $card->nome }}"
+                        <img src="{{ Storage::disk('s3')->url($card->image_path) }}" alt="{{ $card->nome }}"
                             class="object-cover w-full h-32">
 
                         <div class="flex flex-col flex-grow p-4">
