@@ -132,5 +132,3 @@ Se você precisar alterar a rota do painel administrativo, edite o arquivo `conf
 ## Licença
 
 Este projeto está licenciado sob a licença MIT. Consulte o arquivo LICENSE para mais informações.
-# SAFTEC
-# SAFTEC
